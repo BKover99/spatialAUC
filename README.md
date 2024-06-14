@@ -33,7 +33,7 @@ Here's a basic example of how to use Spatial AUC in your analysis:
 
 ```python
 import scanpy as sc
-from spatial_auc import spatial_auc
+from spatialAUC import spatialAUC.spatial_auc
 
 # Load your Scanpy AnnData object
 adata = sc.read_h5ad("your_data.h5ad")
