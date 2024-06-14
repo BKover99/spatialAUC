@@ -1,31 +1,37 @@
-# Spatial AUC
-Spatial AUC is a Python package that calculates spatial autocorrelation of gene sets using Moran's I statistic. It provides a convenient way to analyze the spatial patterns of gene expression in spatial transcriptomics data.
+# Spatial AUC: A Python Package for Spatial Autocorrelation Analysis of Gene Sets
 
-Features
+Spatial AUC is a powerful Python package designed to calculate spatial autocorrelation of gene sets using Moran's I statistic. It offers a streamlined and efficient way to analyze the spatial patterns of gene expression in spatial transcriptomics data.
 
-Retrieve gene sets from MSigDB database
-Calculate area under the curve (AUC) for gene sets
-Compute spatial autocorrelation using Moran's I statistic
-Utilize Numba for performance optimization
-Seamlessly integrate with Scanpy and Squidpy for spatial analysis
+## Features
 
-Installation
-To install Spatial AUC, you can use pip:
-shellCopy codepip install spatial-auc
+- Retrieve gene sets from the MSigDB database
+- Calculate area under the curve (AUC) for gene sets
+- Compute spatial autocorrelation using Moran's I statistic
+- Utilize Numba for performance optimization
+- Seamlessly integrate with Scanpy and Squidpy for spatial analysis
 
-Make sure you have the following dependencies installed:
+## Installation
 
-numpy
-pandas
-scanpy
-squidpy
-numba
-gseapy
+To install Spatial AUC, simply use pip:
 
-Usage
-Here's a basic example of how to use Spatial AUC:
-pythonCopy code
+```shell
+pip install spatial-auc
+```
 
+Ensure that you have the following dependencies installed:
+
+- numpy
+- pandas
+- scanpy
+- squidpy
+- numba
+- gseapy
+
+## Usage
+
+Here's a basic example of how to use Spatial AUC in your analysis:
+
+```python
 import scanpy as sc
 from spatial_auc import spatial_auc
 
@@ -37,13 +43,17 @@ morans_table, adata_updated = spatial_auc(adata, gene_sets=["m5.all", "m2.all"],
 
 # Access the results
 print(morans_table)
+```
 
-For more detailed examples and usage instructions, please refer to the Google Colab examples.
+For more detailed examples and usage instructions, please refer to the [Google Colab examples](https://colab.research.google.com/drive/1jWw7JBmPyL7-5L3U3ZvN4J4jZZZZ3Q3Q?usp=sharing).
 
-Your dataset is too large for computations like this? Consider using [Pseudovisium](https://github.com/BKover99/Pseudovisium) for hexagonal-binning and make your analysis an order of magnitude faster and more memory-efficient.
+## Large Dataset Optimization
 
+If your dataset is too large for computations like this, consider using [Pseudovisium](https://github.com/BKover99/Pseudovisium) for hexagonal-binning. Pseudovisium can make your analysis an order of magnitude faster and more memory-efficient.
 
-### Author
+## Author
+
 Bence Kover
-https://twitter.com/kover_bence 
-https://www.linkedin.com/in/ben-kover/
+
+- Twitter: [https://twitter.com/kover_bence](https://twitter.com/kover_bence)
+- LinkedIn: [https://www.linkedin.com/in/ben-kover/](https://www.linkedin.com/in/ben-kover/)
