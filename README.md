@@ -1,4 +1,4 @@
-# Spatial AUC: A Python Package for Spatial Autocorrelation Analysis of Gene Sets
+# spatialAUC: A Python Package for Spatial Autocorrelation Analysis of Gene Sets
 
 Spatial AUC is a powerful Python package designed to calculate spatial autocorrelation of gene sets using Moran's I statistic. It offers a streamlined and efficient way to analyze the spatial patterns of gene expression in spatial transcriptomics data.
 
