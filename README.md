@@ -44,10 +44,10 @@ The following structure is expected:
  
  ### Example Table
  
- | gene_set                       | genes                                                                 | gene_present | total_genes | gene_names_present                                                 |
- |--------------------------------|-----------------------------------------------------------------------|--------------|-------------|--------------------------------------------------------------------|
- | GOBP_NEUROTRANSMITTER_UPTAKE   | [Slc6a5, Slc18a1, Slc6a3, Slc29a2, Drd2, Drd3, ...]                   | 14           | 44          | [Slc6a1, Drd2, Atp1a2, Slc1a2, Prkn, Gdnf, Nos1, ...]              |
- | GOBP_FEVER_GENERATION          | [Ccr5, Cnr1, Ednrb, Il1a, Il1b, Il1rn, Ptger3, ...]                   | 6            | 14          | [Il1b, Cnr1, Trpv1, Tnf, Ptgs2, Ednrb]                             |
+ | gene_set                       | genes                                                                 |
+ |--------------------------------|-----------------------------------------------------------------------|
+ | GOBP_NEUROTRANSMITTER_UPTAKE   | [Slc6a5, Slc18a1, Slc6a3, Slc29a2, Drd2, Drd3, ...]                   |
+ | GOBP_FEVER_GENERATION          | [Ccr5, Cnr1, Ednrb, Il1a, Il1b, Il1rn, Ptger3, ...]                   |
 
 
 
