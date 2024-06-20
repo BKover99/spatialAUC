@@ -66,8 +66,9 @@ adata = sc.read_h5ad("your_data.h5ad")
 #... normalise, call spatial_neighbors, etc...
 
 # Calculate spatial autocorrelation - all args displayed here
-morans_table, adata_updated = spatial_auc(adata, df=None, genes=[], gene_sets=['m5.all', 'm2.all'], version='2023.1.Mm',
-neighbors_defined=True, n_perms=1000, n_jobs=2,axis=0, min_gene_ratio=0.3, min_gene_count=5)
+morans_table, adata_updated = spatial_auc(adata, df=None, genes=[], gene_sets=['m5.all', 'm2.all'],
+                                         version='2023.1.Mm', neighbors_defined=True, n_perms=1000,
+                                         n_jobs=2,axis=0, min_gene_ratio=0.3, min_gene_count=5)
 
 # Access the results
 print(morans_table)
