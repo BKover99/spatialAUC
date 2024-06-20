@@ -76,9 +76,13 @@ print(morans_table)
 
 For more detailed examples and usage instructions, please refer to the [Google Colab examples](https://colab.research.google.com/drive/1jWw7JBmPyL7-5L3U3ZvN4J4jZZZZ3Q3Q?usp=sharing).
 
-## Large Dataset Optimization
+## Large Dataset Optimization - Pooling cells by hexagonal-binning
 
-If your dataset is too large for computations like this, consider using [Pseudovisium](https://github.com/BKover99/Pseudovisium) for hexagonal-binning. Pseudovisium can make your analysis an order of magnitude faster and more memory-efficient.
+If your dataset is too large for computations like this (or just want to pool nearby cells), consider using [Pseudovisium](https://github.com/BKover99/Pseudovisium) for hexagonal-binning. Pseudovisium can make your analysis an order of magnitude faster and more memory-efficient.
+
+## Citation
+To cite spatialAUC, cite the Pseudovisium pre-print.
+###### To be added.
 
 ## Author
 
