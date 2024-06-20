@@ -27,13 +27,22 @@ Ensure that you have the following dependencies installed:
 - numba
 - gseapy
 
+## Available Gene sets
+For naming conventions and gene sets that can be retrieved consult the MSigDB website.
+https://www.gsea-msigdb.org/gsea/msigdb/index.jsp
+
+Additionally, you can define your own gene sets and add them to the list.
+The following structure is expected
+
+
+
 ## Usage
 
 Here's a basic example of how to use Spatial AUC in your analysis:
 
 ```python
 import scanpy as sc
-from spatialAUC import spatialAUC.spatial_auc
+from spatialAUC.spatialAUC import spatial_auc
 
 # Load your Scanpy AnnData object
 adata = sc.read_h5ad("your_data.h5ad")
