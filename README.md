@@ -78,8 +78,9 @@ morans_table, adata_updated = spatial_auc(adata, df=None, genes=[], gene_sets=['
 print(morans_table)
 ```
 
-For more detailed examples and usage instructions, please refer to the [Google Colab examples](https://colab.research.google.com/drive/1jWw7JBmPyL7-5L3U3ZvN4J4jZZZZ3Q3Q?usp=sharing).
-
+For more detailed examples and usage instructions, please refer to the examples below:
+[SpatialAUC tutorial on Xenium whole mouse pup data](https://github.com/BKover99/spatialAUC/blob/main/Tutorials/spatialAUC_tutorial_Xenium_whole_mouse_pup.ipynb)
+[SpatialAUC tutorial on CosMx mouse brain data](https://github.com/BKover99/spatialAUC/blob/main/Tutorials/spatialAUC_tutorial_cosmx_mouse_brain.ipynb)
 ## Large Dataset Optimization - Pooling cells by hexagonal-binning
 
 If your dataset is too large for computations like this (or just want to pool nearby cells), consider using [Pseudovisium](https://github.com/BKover99/Pseudovisium) for hexagonal-binning. Pseudovisium can make your analysis an order of magnitude faster and more memory-efficient.
