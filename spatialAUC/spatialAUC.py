@@ -4,8 +4,17 @@ import scanpy as sc
 import squidpy as sq
 from numba import njit, prange
 from gseapy import Msigdb
+from tqdm import tqdm
 
-def get_df_from_gmt(categories, version, genes, min_gene_ratio=0.5, min_gene_count=5):
+
+def get_df_from_gmt(
+    categories,
+    version,
+    genes,
+    min_gene_ratio=0.5,
+    min_gene_count=5,
+    filter_go_kegg_reactome=True,
+):
     """
     Retrieve gene sets from MSigDB and return a DataFrame.
 
@@ -15,31 +24,41 @@ def get_df_from_gmt(categories, version, genes, min_gene_ratio=0.5, min_gene_cou
         genes (list): List of genes present in the adata.var_names.
         min_gene_ratio (float): Minimum ratio of genes present in the gene set to the total genes in the gene set.
         min_gene_count (int): Minimum number of genes present in the gene set.
+        filter_go_kegg_reactome (bool): If True, filter gene sets to only include GO, KEGG, and REACTOME pathways.
 
     Returns:
         pandas.DataFrame: DataFrame containing gene sets and their associated genes.
     """
-    
+
     msig = Msigdb()
     if isinstance(categories, str):
         categories = [categories]
     dfs = []
     for category in categories:
         gmt = msig.get_gmt(category=category, dbver=version)
-        df = pd.DataFrame(gmt.items(), columns=['gene_set', 'genes'])
+        df = pd.DataFrame(gmt.items(), columns=["gene_set", "genes"])
         dfs.append(df)
     if len(dfs) > 1:
         df = pd.concat(dfs, ignore_index=True)
     else:
         df = dfs[0]
 
-    df['gene_present'] = df['genes'].apply(lambda x: len(set(x).intersection(set(genes))))
-    df['total_genes'] = df['genes'].apply(lambda x: len(x))
-    df['gene_names_present'] = df['genes'].apply(lambda x: list(set(x).intersection(set(genes))))
-    df = df[(df['gene_present'] > min_gene_ratio * df['total_genes']) & (df['gene_present'] > min_gene_count)]
-    df = df[df['gene_set'].str.startswith(('GO', 'KEGG', 'REACTOME'))]
+    df["gene_present"] = df["genes"].apply(
+        lambda x: len(set(x).intersection(set(genes)))
+    )
+    df["total_genes"] = df["genes"].apply(lambda x: len(x))
+    df["gene_names_present"] = df["genes"].apply(
+        lambda x: list(set(x).intersection(set(genes)))
+    )
+    df = df[
+        (df["gene_present"] > min_gene_ratio * df["total_genes"])
+        & (df["gene_present"] > min_gene_count)
+    ]
+    if filter_go_kegg_reactome:
+        df = df[df["gene_set"].str.startswith(("GO", "KEGG", "REACTOME"))]
     df.reset_index(drop=True, inplace=True)
     return df
+
 
 @njit(parallel=True)
 def get_rank_numba(X, axis=0):
@@ -65,6 +84,7 @@ def get_rank_numba(X, axis=0):
             result[:, i] = np.argsort(np.argsort(-X[:, i]))
     return result
 
+
 def get_rank(adata, axis=0):
     """
     Calculate the ranks of elements in an AnnData object along a specified axis.
@@ -81,6 +101,7 @@ def get_rank(adata, axis=0):
         adata.X = np.array(adata.X.todense())
     adata.X = get_rank_numba(adata.X, axis=axis)
     return adata
+
 
 @njit
 def calc_auc_numba(x_vals, gene_indices, axis=0):
@@ -115,6 +136,7 @@ def calc_auc_numba(x_vals, gene_indices, axis=0):
                 y_vals[i] += 1 / len(indices)
         return np.trapz(y_vals)
 
+
 def get_auc(adata, df, axis=0):
     """
     Calculate the area under the curve (AUC) for gene sets in an AnnData object.
@@ -128,25 +150,46 @@ def get_auc(adata, df, axis=0):
         scanpy.AnnData: AnnData object with AUC values calculated.
     """
     matrix = np.zeros((adata.shape[0], len(df)))
-    old_adata = adata.copy()
     adata = get_rank(adata, axis=axis)
     var_names = adata.var_names.tolist()
-    for i in range(len(df)):
-        genes = df.iloc[i]['genes']
-        gene_indices = np.array([var_names.index(gene) for gene in genes if gene in var_names])
+
+    for i in tqdm(range(len(df)), desc="Calculating AUC", unit="gene set"):
+        genes = df.iloc[i]["genes"]
+        gene_indices = np.array(
+            [var_names.index(gene) for gene in genes if gene in var_names]
+        )
         for j in range(adata.shape[0]):
             matrix[j, i] = calc_auc_numba(adata.X[j], gene_indices, axis=axis)
+
     new_adata = sc.AnnData(matrix)
     new_adata.obs = adata.obs
-    new_adata.var = pd.DataFrame(df['gene_set'])
-    new_adata.var_names = df['gene_set']
+    new_adata.var = pd.DataFrame(df["gene_set"])
+    new_adata.var_names = df["gene_set"]
     new_adata.obs_names = adata.obs_names
-    new_adata.obsm = adata.obsm
-    new_adata.obsp = adata.obsp
+    if hasattr(adata, "obsp"):
+        new_adata.obsp = adata.obsp
+    if hasattr(adata, "obsm"):
+        new_adata.obsm = adata.obsm
+    if hasattr(adata, "uns"):
+        new_adata.uns = adata.uns
     return new_adata
 
 
-def spatial_auc(adata, df=None, genes=[], gene_sets=['m5.all', 'm2.all'], version='2023.1.Mm', neighbors_defined=True, n_perms=1000, n_jobs=2,axis=0, min_gene_ratio=0.3, min_gene_count=5):
+def spatial_auc(
+    adata,
+    df=None,
+    genes=[],
+    gene_sets=["m5.all", "m2.all"],
+    version="2023.1.Mm",
+    neighbors_defined=True,
+    n_perms=1000,
+    n_jobs=2,
+    axis=0,
+    min_gene_ratio=0.3,
+    min_gene_count=5,
+    sc=False,
+    filter_go_kegg_reactome=True,
+):
     """
     Calculate spatial autocorrelation of gene sets using Moran's I statistic.
 
@@ -159,25 +202,35 @@ def spatial_auc(adata, df=None, genes=[], gene_sets=['m5.all', 'm2.all'], versio
         neighbors_defined (bool): Whether spatial neighbors have already been defined in the AnnData object. Defaults to True.
         n_perms (int): Number of permutations for calculating the p-value. Defaults to 1000.
         n_jobs (int): Number of jobs for parallel processing. Defaults to 2.
-        axis (int): Rank genes within cells (0) or between cells (1). Defaults to 0, which is the normal AUC calculation. 
+        axis (int): Rank genes within cells (0) or between cells (1). Defaults to 0, which is the normal AUC calculation.
         min_gene_ratio (float): Minimum ratio of genes present in the gene set to the total genes in the gene set. Defaults to 0.3.
         min_gene_count (int): Minimum number of genes present in the gene set. Defaults to 5.
+        sc (bool): If True, return the AnnData object without calculating spatial autocorrelation. Defaults to False.
+        filter_go_kegg_reactome (bool): If True, filter gene sets to only include GO, KEGG, and REACTOME pathways. Defaults to True.
 
     Returns:
         tuple: A tuple containing two elements:
             - morans_table_fr (pandas.DataFrame): DataFrame containing Moran's I statistics and p-values for each gene set.
             - adata (scanpy.AnnData): Updated AnnData object with spatial autocorrelation results.
     """
-    
+
+    print("Getting gene set")
     if genes == []:
         genes = adata.var_names.tolist()
-    
+
     try:
-        df_msigdb = get_df_from_gmt(gene_sets, version, genes, min_gene_ratio=min_gene_ratio, min_gene_count=min_gene_count)
+        df_msigdb = get_df_from_gmt(
+            gene_sets,
+            version,
+            genes,
+            min_gene_ratio=min_gene_ratio,
+            min_gene_count=min_gene_count,
+            filter_go_kegg_reactome=filter_go_kegg_reactome,
+        )
     except:
         print("Error: gene sets not found")
         df_msigdb = pd.DataFrame()
-    
+
     if df is not None:
         try:
             if df.columns[0] == df_msigdb.columns[0]:
@@ -190,17 +243,25 @@ def spatial_auc(adata, df=None, genes=[], gene_sets=['m5.all', 'm2.all'], versio
             df = df_msigdb
     else:
         df = df_msigdb
-    
+
     if df.empty:
         print("Error: no gene sets found")
         return None, adata
-    
+
+    print("Calculating AUC")
     adata = get_auc(adata, df, axis=axis)
-    
-    if not neighbors_defined:
-        sq.gr.spatial_neighbors(adata, radius=250, coord_type="generic", delaunay=True)
-    
-    sq.gr.spatial_autocorr(adata, mode="moran", n_perms=n_perms, n_jobs=n_jobs)
-    morans_table_fr = adata.uns["moranI"]
-    
-    return morans_table_fr, adata
+
+    if sc:
+        return adata
+    else:
+        if not neighbors_defined:
+            print("Defining neighbors")
+            sq.gr.spatial_neighbors(
+                adata, radius=250, coord_type="generic", delaunay=True
+            )
+
+        print("Calculating Moran's I")
+        sq.gr.spatial_autocorr(adata, mode="moran", n_perms=n_perms, n_jobs=n_jobs)
+        morans_table_fr = adata.uns["moranI"]
+
+        return morans_table_fr, adata
