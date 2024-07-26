@@ -16,10 +16,10 @@ spatialAUC is a powerful Python package designed to calculate spatial autocorrel
 
 ## Installation
 
-To install Spatial AUC, simply use pip:
+To install spatialAUC, simply use pip:
 
 ```shell
-pip install spatial-auc
+pip install spatialauc
 ```
 
 Ensure that you have the following dependencies installed:
@@ -57,7 +57,7 @@ The following structure is expected:
 
 ## Usage
 
-Here's a basic example of how to use Spatial AUC in your analysis:
+Here's a basic example of how to use spatialAUC in your analysis:
 
 ```python
 import scanpy as sc
