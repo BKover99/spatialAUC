@@ -42,6 +42,8 @@ The following structure is expected:
  
  - **gene_set**: The name of the gene set, formatted as a string.
  - **genes**: A list of all genes associated with the gene set, formatted as a list of strings.
+
+#### Optional
  - **gene_present**: An integer representing the number of genes present in the specified context.
  - **total_genes**: An integer indicating the total number of genes in the gene set.
  - **gene_names_present**: A list of gene names that are present, formatted as a list of strings.
